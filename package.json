@@ -1,0 +1,33 @@
+{
+  "name": "zk-snark",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "mocha test/circuit.test.mjs --experimental-modules",
+    "compile": "node scripts/compile-circuit.js",
+    "prove": "node scripts/generate-proof.js",
+    "deploy": "hardhat run scripts/deploy.js",
+    "verify": "hardhat run scripts/verify-proof.js",
+    "test:states": "hardhat run scripts/test-states.js",
+    "compile:contracts": "hardhat compile"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "@openzeppelin/contracts": "^5.1.0",
+    "chai": "^5.1.2",
+    "circom_tester": "^0.0.19",
+    "circomlib": "^2.0.5",
+    "ethereum-waffle": "^4.0.10",
+    "ethers": "^5.7.2",
+    "ffjavascript": "^0.2.63",
+    "hardhat": "^2.22.15",
+    "mocha": "^10.7.3",
+    "snarkjs": "^0.7.5"
+  }
+}
