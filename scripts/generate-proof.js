@@ -21,7 +21,6 @@ async function execute(command) {
 
 async function generateProof() {
   try {
-    // Create input file
     const input = {
       totalSupply: "1000000",
       cap: "2000000",
@@ -31,15 +30,12 @@ async function generateProof() {
       owner: "123456789",
     };
 
-    // Write input to file
     const inputPath = path.join(BUILD_DIR, "input.json");
     fs.writeFileSync(inputPath, JSON.stringify(input, null, 2));
 
-    // Change to build directory
     process.chdir(BUILD_DIR);
 
     console.log("1. Converting witness generation script...");
-    // Rename the generate_witness.js to .cjs
     if (fs.existsSync("TokenStateVerifier_js/generate_witness.js")) {
       fs.renameSync(
         "TokenStateVerifier_js/generate_witness.js",
@@ -48,7 +44,6 @@ async function generateProof() {
     }
 
     console.log("2. Generating witness...");
-    // Use the .cjs extension
     await execute(
       `node TokenStateVerifier_js/generate_witness.cjs TokenStateVerifier_js/TokenStateVerifier.wasm input.json witness.wtns`
     );
@@ -74,14 +69,12 @@ async function generateProof() {
     );
     console.log("\nCalldata for Solidity verifier:", stdout);
 
-    // Read and print the proof
     const proof = JSON.parse(fs.readFileSync("proof.json", "utf8"));
     const publicSignals = JSON.parse(fs.readFileSync("public.json", "utf8"));
 
     console.log("\nProof generated successfully!");
     console.log("\nPublic Signals:", publicSignals);
 
-    // Copy verifier contract
     const contractsDir = path.join(__dirname, "..", "contracts");
     if (!fs.existsSync(contractsDir)) {
       fs.mkdirSync(contractsDir);

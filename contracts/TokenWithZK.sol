@@ -6,13 +6,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./verifier.sol";
 
 contract TokenWithZK is ERC20, Ownable {
-    Groth16Verifier public verifier;
+    Groth16Verifier public immutable verifier;
     uint256 private immutable _cap;
     bool private _paused;
-    mapping(uint256 => bool) public verifiedStates;  // Changed from bytes32 to uint256
+    mapping(uint256 => bool) private _verifiedStates;
 
-    event StateVerified(uint256 indexed state);
-    event ProofVerified(bool success);
+    event StateVerified(uint256 indexed state, bool success);
+    event ProofVerified(bool success, uint256 indexed state);
+    event Debug(string message, uint256 value);
 
     constructor(
         uint256 initialSupply,
@@ -27,11 +28,6 @@ contract TokenWithZK is ERC20, Ownable {
         verifier = Groth16Verifier(verifierAddress);
     }
 
-    modifier whenNotPaused() {
-        require(!_paused, "Token transfer while paused");
-        _;
-    }
-
     function verifyState(
         uint[2] memory a,
         uint[2][2] memory b,
@@ -43,27 +39,25 @@ contract TokenWithZK is ERC20, Ownable {
         bool isValid = verifier.verifyProof(a, b, c, input);
         require(isValid, "Invalid proof");
         
-        emit ProofVerified(isValid);
+        _verifiedStates[input[0]] = true;
         
-        // Store the state directly
-        verifiedStates[input[0]] = true;
+        emit StateVerified(input[0], true);
+        emit ProofVerified(true, input[0]);
         
-        emit StateVerified(input[0]);
         return true;
     }
 
-    function isStateVerified(uint256 state) public view returns (bool) {
+    function getVerificationStatus(uint256 state) public view returns (bool) {
         require(state > 0, "Invalid state value");
-        return verifiedStates[state];
+        return _verifiedStates[state];
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
-        require(totalSupply() + amount <= _cap, "Cap exceeded");
-        _mint(to, amount);
+    function cap() public view returns (uint256) {
+        return _cap;
     }
 
-    function burn(uint256 amount) public onlyOwner {
-        _burn(msg.sender, amount);
+    function isPaused() public view returns (bool) {
+        return _paused;
     }
 
     function pause() public onlyOwner {
@@ -74,8 +68,9 @@ contract TokenWithZK is ERC20, Ownable {
         _paused = false;
     }
 
-    function cap() public view returns (uint256) {
-        return _cap;
+    modifier whenNotPaused() {
+        require(!_paused, "Token transfer while paused");
+        _;
     }
 
     function transfer(address to, uint256 amount) public virtual override whenNotPaused returns (bool) {
