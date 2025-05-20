@@ -8,7 +8,7 @@ async function main() {
 
   // Get contract instance
   const tokenAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"; // Your deployed address
-  const TokenWithZK = await ethers.getContractFactory("TokenWithZk");
+  const TokenWithZK = await ethers.getContractFactory("TokenWithZK");
   const token = await TokenWithZK.attach(tokenAddress);
 
   console.log("Testing different token states...");
